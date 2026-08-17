@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens — CSS custom properties are the single source of truth for
+ * brand color, never a hardcoded hex in a component. tailwind.config.ts reads
+ * these same variables, so switching --color-accent (a named theme) or
+ * toggling .dark repaints every Tailwind-styled element at once.
+ *
+ * Two independent axes:
+ *   1. Light/dark MODE — structural neutrals (surface/border/text) use
+ *      Tailwind's native `dark:` variant directly in components.
+ *   2. Named ACCENT theme — brand color, via [data-theme] on <html>,
+ *      independent of light/dark.
+ *
+ * Semantic status colors (paid/partial/unpaid/advance) are fixed across all
+ * accent themes — business meaning, not brand identity. --color-gold is a
+ * fixed decorative accent (used sparingly: a card's top rule, the org
+ * monogram, focus touches on the login screen) for the "elegant" trim look —
+ * independent of the chosen accent theme, the same way gold leaf doesn't
+ * change with the color of the paper it's on.
+ */
+:root {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+
+  --color-gold: #b8860b;
+  --color-gold-light: #fef9ec;
+
+  /* Default accent theme ("royal") — overridden per [data-theme] below.
+     Lighter, brighter jewel tones rather than near-black shades — "royal"
+     reads as rich color, not as darkness — while --color-accent-dark (the
+     sidebar surface) stays just deep enough for white nav text to stay legible. */
+  --color-accent: #7c3aed;
+  --color-accent-dark: #6d28d9;
+  --color-accent-light: #f5f3ff;
+}
+
+:root[data-theme="emerald"] {
+  --color-accent: #059669;
+  --color-accent-dark: #047857;
+  --color-accent-light: #ecfdf5;
+}
+
+:root[data-theme="sapphire"] {
+  --color-accent: #2563eb;
+  --color-accent-dark: #1d4ed8;
+  --color-accent-light: #eff6ff;
+}
+
+:root[data-theme="burgundy"] {
+  --color-accent: #be123c;
+  --color-accent-dark: #9f1239;
+  --color-accent-light: #fff1f2;
+}
+
+:root[data-theme="slate"] {
+  --color-accent: #475569;
+  --color-accent-dark: #334155;
+  --color-accent-light: #f1f5f9;
+}
+
+.dark {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+
+  --color-gold: #d4af37;
+  --color-gold-light: #3f3212;
+
+  --color-accent-light: #2e1065;
+}
+
+.dark[data-theme="emerald"] {
+  --color-accent-light: #022c22;
+}
+
+.dark[data-theme="sapphire"] {
+  --color-accent-light: #172554;
+}
+
+.dark[data-theme="burgundy"] {
+  --color-accent-light: #4c0519;
+}
+
+.dark[data-theme="slate"] {
+  --color-accent: #94a3b8;
+  --color-accent-dark: #cbd5e1;
+  --color-accent-light: #334155;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-heading {
+  font-family: var(--font-heading), Georgia, serif;
+}

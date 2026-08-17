@@ -1,0 +1,228 @@
+// Prisma is used here purely as the schema/migration tool — matching the
+// db:migrate:* convention from other projects. The app itself does NOT use
+// Prisma Client at runtime: all reads/writes go through supabase-js so that
+// Postgres Row Level Security (current_organization_id()) enforces
+// organization-scoping per request. A Prisma-connected client is a single
+// fixed DB role and would bypass that entirely.
+//
+// `profiles.id` is a foreign key into `auth.users(id)` (Supabase Auth's own
+// table, in a schema Prisma doesn't manage here) — that constraint, plus all
+// RLS policies, helper functions, and triggers, are appended as raw SQL at
+// the end of the generated migration rather than expressed in this file,
+// since Prisma's schema language can't model any of them.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+enum RecordStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  BANK_TRANSFER
+  OTHER
+}
+
+model Organization {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  profiles          Profile[]
+  farmers           Farmer[]
+  milkTypes         MilkType[]
+  shiftConfigs      ShiftConfig[]
+  expenseCategories ExpenseCategory[]
+  milkPurchases     MilkPurchase[]
+  farmerPayments    FarmerPayment[]
+  milkSupplies      MilkSupply[]
+  expenses          Expense[]
+
+  @@map("organizations")
+}
+
+/// One row per Supabase Auth user (auth.users.id). See the note at the top
+/// of this file — the FK to auth.users is added via raw SQL in the migration.
+model Profile {
+  id             String       @id @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  role           UserRole     @default(ADMIN)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@map("profiles")
+}
+
+model Farmer {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  farmerCode     String       @map("farmer_code")
+  name           String
+  phone          String?
+  address        String?
+  status         RecordStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  milkPurchases  MilkPurchase[]
+  farmerPayments FarmerPayment[]
+
+  @@unique([organizationId, farmerCode])
+  @@map("farmers")
+}
+
+model MilkType {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  status         RecordStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  milkPurchases MilkPurchase[]
+  milkSupplies  MilkSupply[]
+
+  @@unique([organizationId, name])
+  @@map("milk_types")
+}
+
+model ShiftConfig {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  startTime      String       @map("start_time")
+  endTime        String       @map("end_time")
+  sortOrder      Int          @default(0) @map("sort_order")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  milkPurchases MilkPurchase[]
+  milkSupplies  MilkSupply[]
+
+  @@unique([organizationId, name])
+  @@map("shift_configs")
+}
+
+model ExpenseCategory {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  status         RecordStatus @default(ACTIVE)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  expenses Expense[]
+
+  @@unique([organizationId, name])
+  @@map("expense_categories")
+}
+
+model MilkPurchase {
+  id                 String       @id @default(uuid()) @db.Uuid
+  organizationId     String       @map("organization_id") @db.Uuid
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  farmerId           String       @map("farmer_id") @db.Uuid
+  farmer             Farmer       @relation(fields: [farmerId], references: [id])
+  purchaseDate       DateTime     @map("purchase_date") @db.Date
+  shiftId            String       @map("shift_id") @db.Uuid
+  shift              ShiftConfig  @relation(fields: [shiftId], references: [id])
+  milkTypeId         String       @map("milk_type_id") @db.Uuid
+  milkType           MilkType     @relation(fields: [milkTypeId], references: [id])
+  quantity           Decimal      @db.Decimal(10, 2)
+  fatPercentage      Decimal?     @map("fat_percentage") @db.Decimal(5, 2)
+  snfPercentage      Decimal?     @map("snf_percentage") @db.Decimal(5, 2)
+  rate               Decimal      @db.Decimal(10, 2)
+  calculatedAmount   Decimal      @map("calculated_amount") @db.Decimal(12, 2)
+  totalAmount        Decimal      @map("total_amount") @db.Decimal(12, 2)
+  isAmountOverridden Boolean      @default(false) @map("is_amount_overridden")
+  notes              String?
+  createdBy          String?      @map("created_by") @db.Uuid
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  // rule #20: a farmer can't have two entries for the same date+shift+milk type.
+  @@unique([organizationId, farmerId, purchaseDate, shiftId, milkTypeId])
+  @@index([organizationId, farmerId])
+  @@map("milk_purchases")
+}
+
+model FarmerPayment {
+  id              String        @id @default(uuid()) @db.Uuid
+  organizationId  String        @map("organization_id") @db.Uuid
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  farmerId        String        @map("farmer_id") @db.Uuid
+  farmer          Farmer        @relation(fields: [farmerId], references: [id])
+  paymentDate     DateTime      @map("payment_date") @db.Date
+  amount          Decimal       @db.Decimal(12, 2)
+  paymentMethod   PaymentMethod @default(CASH) @map("payment_method")
+  referenceNumber String?       @map("reference_number")
+  notes           String?
+  createdBy       String?       @map("created_by") @db.Uuid
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  @@index([organizationId, farmerId])
+  @@map("farmer_payments")
+}
+
+model MilkSupply {
+  id                 String       @id @default(uuid()) @db.Uuid
+  organizationId     String       @map("organization_id") @db.Uuid
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  supplyDate         DateTime     @map("supply_date") @db.Date
+  shiftId            String       @map("shift_id") @db.Uuid
+  shift              ShiftConfig  @relation(fields: [shiftId], references: [id])
+  milkTypeId         String       @map("milk_type_id") @db.Uuid
+  milkType           MilkType     @relation(fields: [milkTypeId], references: [id])
+  customerName       String?      @map("customer_name")
+  quantity           Decimal      @db.Decimal(10, 2)
+  fatPercentage      Decimal?     @map("fat_percentage") @db.Decimal(5, 2)
+  snfPercentage      Decimal?     @map("snf_percentage") @db.Decimal(5, 2)
+  rate               Decimal      @db.Decimal(10, 2)
+  calculatedAmount   Decimal      @map("calculated_amount") @db.Decimal(12, 2)
+  totalAmount        Decimal      @map("total_amount") @db.Decimal(12, 2)
+  isAmountOverridden Boolean      @default(false) @map("is_amount_overridden")
+  notes              String?
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  @@index([organizationId, supplyDate])
+  @@map("milk_supplies")
+}
+
+model Expense {
+  id             String          @id @default(uuid()) @db.Uuid
+  organizationId String          @map("organization_id") @db.Uuid
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  expenseDate    DateTime        @map("expense_date") @db.Date
+  categoryId     String          @map("category_id") @db.Uuid
+  category       ExpenseCategory @relation(fields: [categoryId], references: [id])
+  amount         Decimal         @db.Decimal(12, 2)
+  notes          String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  @@index([organizationId, expenseDate])
+  @@map("expenses")
+}

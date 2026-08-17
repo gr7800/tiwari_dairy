@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+.env
+.env.local
+*.log
+.vercel
+
+# Playwright
+e2e/.auth
+test-results
+playwright-report
+blob-report
+
+# Local tooling
+.claude
+*.tsbuildinfo
