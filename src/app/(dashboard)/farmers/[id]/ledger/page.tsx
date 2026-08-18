@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getFarmerLedgerData } from "@/lib/farmerLedger";
+import { createClient } from "@/lib/supabase/server";
 import { SettlementSummaryCard } from "@/components/ledger/SettlementSummaryCard";
 import { FarmerLedgerTable } from "@/components/ledger/FarmerLedgerTable";
 import { Input } from "@/components/ui/Field";
@@ -13,7 +14,13 @@ export default async function FarmerLedgerPage({
   searchParams: { from?: string; to?: string };
 }) {
   const { from, to } = searchParams;
-  const ledger = await getFarmerLedgerData(params.id, { from, to });
+  const supabase = createClient();
+  const [ledger, { data: farmers }, { data: milkTypes }, { data: shifts }] = await Promise.all([
+    getFarmerLedgerData(params.id, { from, to }),
+    supabase.from("farmers").select("id, farmer_code, name").eq("status", "ACTIVE").order("farmer_code"),
+    supabase.from("milk_types").select("id, name").eq("status", "ACTIVE").order("name"),
+    supabase.from("shift_configs").select("id, name, start_time, end_time, sort_order").order("sort_order"),
+  ]);
   if (!ledger) notFound();
 
   const { farmer, transactions, overall, period } = ledger;
@@ -54,7 +61,13 @@ export default async function FarmerLedgerPage({
         </p>
       )}
 
-      <FarmerLedgerTable transactions={transactions} />
+      <FarmerLedgerTable
+        transactions={transactions}
+        farmerId={farmer.id}
+        farmers={farmers ?? []}
+        milkTypes={milkTypes ?? []}
+        shifts={shifts ?? []}
+      />
     </div>
   );
 }

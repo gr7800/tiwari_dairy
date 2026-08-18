@@ -37,13 +37,15 @@ export async function getFarmerLedgerData(
       : Promise.resolve({ data: null }),
     supabase
       .from("milk_purchases")
-      .select("id, purchase_date, quantity, total_amount, milk_types(name), shift_configs(name)")
+      .select(
+        "id, purchase_date, shift_id, milk_type_id, quantity, fat_percentage, snf_percentage, rate, total_amount, is_amount_overridden, notes, milk_types(name), shift_configs(name)"
+      )
       .eq("farmer_id", farmer.id)
       .gte("purchase_date", from || "1970-01-01")
       .lte("purchase_date", to || "2999-12-31"),
     supabase
       .from("farmer_payments")
-      .select("id, payment_date, amount, payment_method, reference_number")
+      .select("id, payment_date, amount, payment_method, reference_number, notes")
       .eq("farmer_id", farmer.id)
       .gte("payment_date", from || "1970-01-01")
       .lte("payment_date", to || "2999-12-31"),
@@ -62,8 +64,15 @@ export async function getFarmerLedgerData(
     const row = p as unknown as {
       id: string;
       purchase_date: string;
+      shift_id: string;
+      milk_type_id: string;
       quantity: number;
+      fat_percentage: number | null;
+      snf_percentage: number | null;
+      rate: number;
       total_amount: number;
+      is_amount_overridden: boolean;
+      notes: string | null;
       milk_types: { name: string } | null;
       shift_configs: { name: string } | null;
     };
@@ -75,6 +84,13 @@ export async function getFarmerLedgerData(
       shift: row.shift_configs?.name,
       milkType: row.milk_types?.name,
       quantity: Number(row.quantity),
+      shiftId: row.shift_id,
+      milkTypeId: row.milk_type_id,
+      fatPercentage: row.fat_percentage,
+      snfPercentage: row.snf_percentage,
+      rate: Number(row.rate),
+      isAmountOverridden: row.is_amount_overridden,
+      notes: row.notes,
     };
   });
 
@@ -85,6 +101,7 @@ export async function getFarmerLedgerData(
     amount: Number(pay.amount),
     paymentMethod: pay.payment_method,
     referenceNumber: pay.reference_number,
+    notes: pay.notes,
   }));
 
   const transactions = [...purchaseTx, ...paymentTx].sort((a, b) => (a.date < b.date ? 1 : -1));

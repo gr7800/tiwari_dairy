@@ -1,3 +1,7 @@
+import { EditPurchaseButton } from "@/components/purchases/EditPurchaseButton";
+import { EditPaymentButton } from "@/components/payments/EditPaymentButton";
+import type { FarmerOption } from "@/components/ui/FarmerCombobox";
+
 export interface LedgerTransaction {
   type: "PURCHASE" | "PAYMENT";
   id: string;
@@ -8,6 +12,15 @@ export interface LedgerTransaction {
   quantity?: number;
   paymentMethod?: string;
   referenceNumber?: string | null;
+  notes?: string | null;
+  // Purchase-only fields, present when type === "PURCHASE" — needed to open
+  // the edit modal without a second fetch, since the ledger already has them.
+  shiftId?: string;
+  milkTypeId?: string;
+  fatPercentage?: number | null;
+  snfPercentage?: number | null;
+  rate?: number;
+  isAmountOverridden?: boolean;
 }
 
 const methodLabels: Record<string, string> = {
@@ -17,7 +30,71 @@ const methodLabels: Record<string, string> = {
   OTHER: "Other",
 };
 
-export function FarmerLedgerTable({ transactions }: { transactions: LedgerTransaction[] }) {
+function EditLedgerTransaction({
+  tx,
+  farmerId,
+  farmers,
+  milkTypes,
+  shifts,
+}: {
+  tx: LedgerTransaction;
+  farmerId: string;
+  farmers: FarmerOption[];
+  milkTypes: { id: string; name: string }[];
+  shifts: { id: string; name: string }[];
+}) {
+  if (tx.type === "PURCHASE") {
+    return (
+      <EditPurchaseButton
+        purchase={{
+          id: tx.id,
+          purchase_date: tx.date,
+          quantity: tx.quantity ?? 0,
+          rate: tx.rate ?? 0,
+          fat_percentage: tx.fatPercentage ?? null,
+          snf_percentage: tx.snfPercentage ?? null,
+          total_amount: tx.amount,
+          is_amount_overridden: tx.isAmountOverridden ?? false,
+          notes: tx.notes ?? null,
+          farmer_id: farmerId,
+          shift_id: tx.shiftId ?? "",
+          milk_type_id: tx.milkTypeId ?? "",
+        }}
+        farmers={farmers}
+        milkTypes={milkTypes}
+        shifts={shifts}
+      />
+    );
+  }
+  return (
+    <EditPaymentButton
+      payment={{
+        id: tx.id,
+        payment_date: tx.date,
+        amount: tx.amount,
+        payment_method: tx.paymentMethod ?? "CASH",
+        reference_number: tx.referenceNumber ?? null,
+        notes: tx.notes ?? null,
+        farmer_id: farmerId,
+      }}
+      farmers={farmers}
+    />
+  );
+}
+
+export function FarmerLedgerTable({
+  transactions,
+  farmerId,
+  farmers,
+  milkTypes,
+  shifts,
+}: {
+  transactions: LedgerTransaction[];
+  farmerId: string;
+  farmers: FarmerOption[];
+  milkTypes: { id: string; name: string }[];
+  shifts: { id: string; name: string }[];
+}) {
   return (
     <>
       <div className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm md:block dark:border-slate-700 dark:bg-slate-800">
@@ -28,6 +105,7 @@ export function FarmerLedgerTable({ transactions }: { transactions: LedgerTransa
               <th className="px-4 py-2.5">Type</th>
               <th className="px-4 py-2.5">Details</th>
               <th className="px-4 py-2.5 text-right">Amount</th>
+              <th className="px-4 py-2.5"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -64,11 +142,14 @@ export function FarmerLedgerTable({ transactions }: { transactions: LedgerTransa
                 >
                   {tx.type === "PURCHASE" ? "+" : "-"}₹{tx.amount.toFixed(2)}
                 </td>
+                <td className="px-4 py-2.5 text-right">
+                  <EditLedgerTransaction tx={tx} farmerId={farmerId} farmers={farmers} milkTypes={milkTypes} shifts={shifts} />
+                </td>
               </tr>
             ))}
             {transactions.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-slate-400 dark:text-slate-500">
+                <td colSpan={5} className="px-4 py-6 text-center text-slate-400 dark:text-slate-500">
                   No transactions in this period.
                 </td>
               </tr>
@@ -104,7 +185,7 @@ export function FarmerLedgerTable({ transactions }: { transactions: LedgerTransa
                 {tx.type === "PURCHASE" ? "+" : "-"}₹{tx.amount.toFixed(2)}
               </p>
             </div>
-            <div className="mt-3 border-t border-slate-100 pt-2.5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+            <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
               {tx.type === "PURCHASE" ? (
                 <span>
                   {tx.shift} · {tx.milkType} · {tx.quantity} L
@@ -115,6 +196,7 @@ export function FarmerLedgerTable({ transactions }: { transactions: LedgerTransa
                   {tx.referenceNumber ? ` · Ref: ${tx.referenceNumber}` : ""}
                 </span>
               )}
+              <EditLedgerTransaction tx={tx} farmerId={farmerId} farmers={farmers} milkTypes={milkTypes} shifts={shifts} />
             </div>
           </div>
         ))}
