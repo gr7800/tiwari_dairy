@@ -39,27 +39,29 @@ export function PaymentForm({ farmers }: { farmers: FarmerOption[] }) {
         <FarmerCombobox farmers={farmers} name="farmerId" required />
       </FieldGroup>
 
-      <FieldGroup label="Date">
-        <Input type="date" name="paymentDate" value={date} onChange={(e) => setDate(e.target.value)} required />
-      </FieldGroup>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FieldGroup label="Date">
+          <Input type="date" name="paymentDate" value={date} onChange={(e) => setDate(e.target.value)} required />
+        </FieldGroup>
+        <FieldGroup label="Amount">
+          <Input type="number" step="0.01" min="0.01" name="amount" required />
+        </FieldGroup>
+      </div>
 
-      <FieldGroup label="Amount">
-        <Input type="number" step="0.01" min="0.01" name="amount" required />
-      </FieldGroup>
-
-      <FieldGroup label="Payment Method" hint={<span className="text-xs text-slate-400 dark:text-slate-500">defaults to Cash</span>}>
-        <Select name="paymentMethod" defaultValue="CASH">
-          {paymentMethods.map((m) => (
-            <option key={m.value} value={m.value}>
-              {m.label}
-            </option>
-          ))}
-        </Select>
-      </FieldGroup>
-
-      <FieldGroup label="Reference Number">
-        <Input name="referenceNumber" placeholder="Optional" />
-      </FieldGroup>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FieldGroup label="Payment Method" hint={<span className="text-xs text-slate-400 dark:text-slate-500">defaults to Cash</span>}>
+          <Select name="paymentMethod" defaultValue="CASH">
+            {paymentMethods.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </Select>
+        </FieldGroup>
+        <FieldGroup label="Reference Number">
+          <Input name="referenceNumber" placeholder="Optional" />
+        </FieldGroup>
+      </div>
 
       <FieldGroup label="Notes">
         <Input name="notes" placeholder="Optional" />

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { OrgBadge } from "@/components/layout/OrgBadge";
+import { NAV_ICONS } from "@/components/layout/navIcons";
 
 interface NavItem {
   href: string;
@@ -64,11 +65,11 @@ export function MobileNav({
             type="button"
             aria-label="Close menu"
             onClick={() => setIsOpen(false)}
-            className="absolute inset-0 bg-slate-900/50"
+            className="absolute inset-0 bg-slate-900/50 animate-fade-in"
           />
           <aside
             aria-label="Main navigation"
-            className="relative flex h-full w-72 max-w-[85vw] flex-col bg-accent-dark shadow-2xl"
+            className="relative flex h-full w-72 max-w-[85vw] flex-col bg-accent-dark shadow-2xl animate-slide-in-left"
           >
             <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-4">
               <div className="flex min-w-0 items-center gap-3">
@@ -90,18 +91,17 @@ export function MobileNav({
             <nav className="flex-1 space-y-1 overflow-y-auto p-3">
               {items.map((item) => {
                 const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+                const Icon = NAV_ICONS[item.href];
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
-                    className={`relative block rounded-lg px-3.5 py-3 text-base transition-colors ${
-                      isActive ? "bg-white/10 font-medium text-white" : "text-white/70 hover:bg-white/5 hover:text-white"
+                    className={`flex items-center gap-3 rounded-lg px-3.5 py-3 text-base transition-colors duration-150 ${
+                      isActive ? "bg-white/15 font-semibold text-white" : "text-white/70 hover:bg-white/5 hover:text-white"
                     }`}
                   >
-                    {isActive && (
-                      <span className="absolute inset-y-2.5 left-0 w-0.5 rounded-full bg-gold" aria-hidden="true" />
-                    )}
+                    {Icon && <Icon className="shrink-0" />}
                     {item.label}
                   </Link>
                 );

@@ -2,21 +2,36 @@ import { createClient } from "@/lib/supabase/server";
 import { SupplyForm } from "@/components/forms/SupplyForm";
 import { DeleteSupplyButton } from "@/components/supplies/DeleteSupplyButton";
 import { EditSupplyButton } from "@/components/supplies/EditSupplyButton";
+import { Pagination } from "@/components/ui/Pagination";
+import { Input } from "@/components/ui/Field";
+import { Button } from "@/components/ui/Button";
 
-export default async function SuppliesPage() {
+const PAGE_SIZE = 20;
+
+export default async function SuppliesPage({
+  searchParams,
+}: {
+  searchParams: { from?: string; to?: string; page?: string };
+}) {
   const supabase = createClient();
+  const { from, to } = searchParams;
+  const page = Math.max(1, Number(searchParams.page) || 1);
+  const rangeStart = (page - 1) * PAGE_SIZE;
 
-  const [{ data: milkTypes }, { data: shifts }, { data: supplies }] = await Promise.all([
+  const [{ data: milkTypes }, { data: shifts }, { data: supplies, count: totalCount }] = await Promise.all([
     supabase.from("milk_types").select("id, name").eq("status", "ACTIVE").order("name"),
     supabase.from("shift_configs").select("id, name, start_time, end_time, sort_order").order("sort_order"),
     supabase
       .from("milk_supplies")
       .select(
-        "id, supply_date, shift_id, milk_type_id, customer_name, quantity, rate, fat_percentage, snf_percentage, total_amount, is_amount_overridden, notes, milk_types(name), shift_configs(name)"
+        "id, supply_date, shift_id, milk_type_id, customer_name, quantity, rate, fat_percentage, snf_percentage, total_amount, is_amount_overridden, notes, milk_types(name), shift_configs(name)",
+        { count: "exact" }
       )
+      .gte("supply_date", from || "1970-01-01")
+      .lte("supply_date", to || "2999-12-31")
       .order("supply_date", { ascending: false })
       .order("created_at", { ascending: false })
-      .limit(50),
+      .range(rangeStart, rangeStart + PAGE_SIZE - 1),
   ]);
 
   return (
@@ -27,6 +42,20 @@ export default async function SuppliesPage() {
       </div>
 
       <SupplyForm milkTypes={milkTypes ?? []} shifts={shifts ?? []} />
+
+      <form className="flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div>
+          <label className="mb-1 block text-xs text-slate-500 dark:text-slate-400">From</label>
+          <Input type="date" name="from" defaultValue={from} />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs text-slate-500 dark:text-slate-400">To</label>
+          <Input type="date" name="to" defaultValue={to} />
+        </div>
+        <Button type="submit" variant="secondary">
+          Apply filter
+        </Button>
+      </form>
 
       <div className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm md:block dark:border-slate-700 dark:bg-slate-800">
         <table className="w-full text-sm">
@@ -61,14 +90,14 @@ export default async function SuppliesPage() {
                 shift_configs: { name: string } | null;
               };
               return (
-                <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                <tr key={row.id} className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50">
                   <td className="px-4 py-2.5">{row.supply_date}</td>
                   <td className="px-4 py-2.5">{row.shift_configs?.name}</td>
                   <td className="px-4 py-2.5">{row.milk_types?.name}</td>
                   <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400">{row.customer_name ?? "—"}</td>
-                  <td className="px-4 py-2.5 text-right">{row.quantity}</td>
-                  <td className="px-4 py-2.5 text-right">₹{row.rate}</td>
-                  <td className="px-4 py-2.5 text-right">
+                  <td className="px-4 py-2.5 text-right tabular-nums">{row.quantity}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">₹{row.rate}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">
                     ₹{row.total_amount}
                     {row.is_amount_overridden && <span className="ml-1 text-xs text-amber-600 dark:text-amber-400">(overridden)</span>}
                   </td>
@@ -123,14 +152,14 @@ export default async function SuppliesPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-heading text-lg font-semibold text-slate-900 dark:text-slate-100">₹{row.total_amount}</p>
+                  <p className="font-heading text-lg font-semibold tabular-nums text-slate-900 dark:text-slate-100">₹{row.total_amount}</p>
                   {row.is_amount_overridden && (
                     <p className="text-xs text-amber-600 dark:text-amber-400">(overridden)</p>
                   )}
                 </div>
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5 text-sm dark:border-slate-700">
-                <span className="text-slate-500 dark:text-slate-400">
+                <span className="tabular-nums text-slate-500 dark:text-slate-400">
                   {row.milk_types?.name} · {row.quantity} L @ ₹{row.rate}
                 </span>
                 <div className="flex items-center gap-3">
@@ -147,6 +176,8 @@ export default async function SuppliesPage() {
           </p>
         )}
       </div>
+
+      <Pagination page={page} pageSize={PAGE_SIZE} totalCount={totalCount ?? 0} searchParams={searchParams} />
     </div>
   );
 }

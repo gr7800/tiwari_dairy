@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { SidebarNav } from "@/components/layout/SidebarNav";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { OrgBadge } from "@/components/layout/OrgBadge";
+import { PageTransition } from "@/components/layout/PageTransition";
 
 interface NavItem {
   href: string;
@@ -31,7 +32,7 @@ function PanelIcon() {
  * the collapse toggle (topbar) and the sidebar (aside) can share state — the
  * server layout just fetches org/user data and hands it down as props.
  * Collapsing fully hides the sidebar (width -> 0) rather than shrinking to an
- * icon rail, since nav items don't have an icon set of their own yet.
+ * icon rail.
  */
 export function DashboardShell({
   orgName,
@@ -103,7 +104,9 @@ export function DashboardShell({
             </Button>
           </form>
         </header>
-        <main className="min-w-0 flex-1 bg-slate-50 p-3 sm:p-4 md:p-6 dark:bg-slate-900">{children}</main>
+        <main className="min-w-0 flex-1 bg-slate-50 p-3 sm:p-4 md:p-6 dark:bg-slate-900">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
     </div>
   );

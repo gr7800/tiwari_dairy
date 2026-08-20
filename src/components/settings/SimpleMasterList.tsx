@@ -65,9 +65,12 @@ export function SimpleMasterList({
         <AddButton />
       </form>
 
-      <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
+      <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
         {items.map((item) => (
-          <li key={item.id} className="flex items-center justify-between px-4 py-2.5">
+          <li
+            key={item.id}
+            className="flex items-center justify-between px-4 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
+          >
             <div className="flex items-center gap-2">
               <span className="text-sm text-slate-900 dark:text-slate-100">{item.name}</span>
               {item.status === "INACTIVE" && <Badge>Inactive</Badge>}

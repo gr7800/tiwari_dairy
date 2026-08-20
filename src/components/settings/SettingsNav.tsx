@@ -14,7 +14,7 @@ export function SettingsNav({ active }: { active: (typeof tabs)[number]["key"] }
         <Link
           key={tab.key}
           href={tab.href}
-          className={`border-b-2 px-3 py-2 text-sm font-medium ${
+          className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
             tab.key === active
               ? "border-accent text-accent"
               : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"

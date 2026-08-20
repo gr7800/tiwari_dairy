@@ -110,13 +110,16 @@ export function FarmerLedgerTable({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
             {transactions.map((tx) => (
-              <tr key={`${tx.type}-${tx.id}`} className="hover:bg-slate-50 dark:hover:bg-slate-900/50">
+              <tr
+                key={`${tx.type}-${tx.id}`}
+                className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50"
+              >
                 <td className="px-4 py-2.5">{tx.date}</td>
                 <td className="px-4 py-2.5">
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                       tx.type === "PURCHASE"
-                        ? "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
+                        ? "bg-accent-light text-accent"
                         : "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
                     }`}
                   >
@@ -169,7 +172,7 @@ export function FarmerLedgerTable({
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     tx.type === "PURCHASE"
-                      ? "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
+                      ? "bg-accent-light text-accent"
                       : "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
                   }`}
                 >

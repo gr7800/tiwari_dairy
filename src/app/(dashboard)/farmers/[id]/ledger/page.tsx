@@ -35,7 +35,7 @@ export default async function FarmerLedgerPage({
         {farmer.phone && <p className="text-sm text-slate-500 dark:text-slate-400">{farmer.phone}</p>}
       </div>
 
-      <form className="flex flex-wrap items-end gap-3">
+      <form className="flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div>
           <label className="mb-1 block text-xs text-slate-500 dark:text-slate-400">From</label>
           <Input type="date" name="from" defaultValue={from} />

@@ -3,12 +3,14 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { deleteExpense } from "@/lib/actions/expenses";
+import { Button } from "@/components/ui/Button";
 
 export function DeleteExpenseButton({ id }: { id: string }) {
   const [isPending, startTransition] = useTransition();
   return (
-    <button
+    <Button
       type="button"
+      variant="danger"
       disabled={isPending}
       onClick={() => {
         if (confirm("Delete this expense entry?")) {
@@ -20,9 +22,9 @@ export function DeleteExpenseButton({ id }: { id: string }) {
           });
         }
       }}
-      className="text-sm text-red-600 hover:underline disabled:opacity-50"
+      className="!px-2 !py-1 text-xs disabled:opacity-50"
     >
       Delete
-    </button>
+    </Button>
   );
 }

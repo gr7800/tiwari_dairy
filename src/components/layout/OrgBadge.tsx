@@ -5,7 +5,7 @@ export function OrgBadge({ name, className = "" }: { name: string; className?: s
   const initial = name.trim().charAt(0).toUpperCase() || "T";
   return (
     <span
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 font-heading text-base font-bold text-gold ring-1 ring-gold/50 ${className}`}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 font-heading text-base font-bold text-white ring-1 ring-inset ring-gold ${className}`}
       aria-hidden="true"
     >
       {initial}

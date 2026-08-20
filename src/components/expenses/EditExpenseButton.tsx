@@ -41,19 +41,20 @@ function EditExpenseForm({
 
   return (
     <form action={formAction} className="space-y-4">
-      <FieldGroup label="Date">
-        <Input type="date" name="expenseDate" defaultValue={expense.expense_date} required />
-      </FieldGroup>
-
-      <FieldGroup label="Category">
-        <Select name="categoryId" defaultValue={expense.category_id} required>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </Select>
-      </FieldGroup>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FieldGroup label="Date">
+          <Input type="date" name="expenseDate" defaultValue={expense.expense_date} required />
+        </FieldGroup>
+        <FieldGroup label="Category">
+          <Select name="categoryId" defaultValue={expense.category_id} required>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
+        </FieldGroup>
+      </div>
 
       <FieldGroup label="Amount">
         <Input type="number" step="0.01" min="0.01" name="amount" defaultValue={expense.amount} required />
@@ -84,9 +85,9 @@ export function EditExpenseButton({
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)} className="text-sm text-accent hover:underline">
+      <Button type="button" variant="ghost" onClick={() => setIsOpen(true)} className="!px-2 !py-1 text-xs">
         Edit
-      </button>
+      </Button>
       {isOpen && (
         <Modal title="Edit Expense" onClose={() => setIsOpen(false)}>
           <EditExpenseForm expense={expense} categories={categories} onSaved={() => setIsOpen(false)} />

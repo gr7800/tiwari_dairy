@@ -38,8 +38,10 @@ function ThemeCard({
 }) {
   return (
     <div
-      className={`overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow dark:bg-slate-800 ${
-        isActive ? "border-accent ring-1 ring-accent" : "border-slate-200 hover:shadow-md dark:border-slate-700"
+      className={`overflow-hidden rounded-xl border bg-white shadow-sm transition-all active:scale-[0.97] dark:bg-slate-800 ${
+        isActive
+          ? "border-accent ring-2 ring-accent"
+          : "border-slate-200 hover:shadow-md dark:border-slate-700"
       }`}
     >
       <div className="p-4">{preview}</div>

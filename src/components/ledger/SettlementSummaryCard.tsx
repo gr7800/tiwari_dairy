@@ -2,6 +2,13 @@ import { PaidStatusBadge } from "@/components/ui/Badge";
 import type { FarmerAccountSummary } from "@/lib/ledger";
 
 export function SettlementSummaryCard({ title, summary }: { title: string; summary: FarmerAccountSummary }) {
+  const paidPct =
+    summary.totalMilkValue > 0
+      ? Math.min(100, Math.round((summary.totalPaid / summary.totalMilkValue) * 100))
+      : summary.totalPaid > 0
+        ? 100
+        : 0;
+
   return (
     <div
       className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800"
@@ -37,6 +44,16 @@ export function SettlementSummaryCard({ title, summary }: { title: string; summa
           </div>
         )}
       </dl>
+      <div className="mt-4">
+        <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+          <div
+            className="h-full rounded-full bg-paid transition-all"
+            style={{ width: `${paidPct}%` }}
+            aria-hidden="true"
+          />
+        </div>
+        <p className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">{paidPct}% paid</p>
+      </div>
       <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-700">
         <span className="text-sm text-slate-500 dark:text-slate-400">Status</span>
         <PaidStatusBadge status={summary.status} />

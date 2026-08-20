@@ -62,7 +62,11 @@ export function EditFarmerButton({ farmer }: { farmer: EditableFarmer }) {
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)} className="text-sm text-accent hover:underline">
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="text-sm text-accent transition-transform hover:underline active:scale-[0.97]"
+      >
         Edit
       </button>
       {isOpen && (

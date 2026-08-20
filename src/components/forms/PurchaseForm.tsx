@@ -75,48 +75,50 @@ export function PurchaseForm({
         </Select>
       </FieldGroup>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <FieldGroup label="Quantity (L)">
-          <Input
-            type="number"
-            step="0.01"
-            min="0.01"
-            name="quantity"
-            value={quantity || ""}
-            onChange={(e) => setQuantity(Number(e.target.value))}
-            required
-          />
-        </FieldGroup>
-        <FieldGroup label="Fat %">
-          <Input type="number" step="0.1" min="0" max="100" name="fatPercentage" />
-        </FieldGroup>
-        <FieldGroup label="SNF %">
-          <Input type="number" step="0.1" min="0" max="100" name="snfPercentage" />
-        </FieldGroup>
-      </div>
+      <div className="space-y-4 rounded-lg border border-slate-100 bg-slate-50/60 p-4 dark:border-slate-700/60 dark:bg-slate-900/40">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <FieldGroup label="Quantity (L)">
+            <Input
+              type="number"
+              step="0.01"
+              min="0.01"
+              name="quantity"
+              value={quantity || ""}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              required
+            />
+          </FieldGroup>
+          <FieldGroup label="Fat %">
+            <Input type="number" step="0.1" min="0" max="100" name="fatPercentage" />
+          </FieldGroup>
+          <FieldGroup label="SNF %">
+            <Input type="number" step="0.1" min="0" max="100" name="snfPercentage" />
+          </FieldGroup>
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FieldGroup label="Rate (per L)">
-          <Input
-            type="number"
-            step="0.01"
-            min="0.01"
-            name="rate"
-            value={rate || ""}
-            onChange={(e) => setRate(Number(e.target.value))}
-            required
-          />
-        </FieldGroup>
-        <FieldGroup label="Total Amount">
-          <AmountField
-            amountFieldName="totalAmount"
-            overriddenFieldName="isAmountOverridden"
-            totalAmount={totalAmount}
-            isOverridden={isOverridden}
-            onChange={overrideTotal}
-            onReset={resetToCalculated}
-          />
-        </FieldGroup>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FieldGroup label="Rate (per L)">
+            <Input
+              type="number"
+              step="0.01"
+              min="0.01"
+              name="rate"
+              value={rate || ""}
+              onChange={(e) => setRate(Number(e.target.value))}
+              required
+            />
+          </FieldGroup>
+          <FieldGroup label="Total Amount">
+            <AmountField
+              amountFieldName="totalAmount"
+              overriddenFieldName="isAmountOverridden"
+              totalAmount={totalAmount}
+              isOverridden={isOverridden}
+              onChange={overrideTotal}
+              onReset={resetToCalculated}
+            />
+          </FieldGroup>
+        </div>
       </div>
 
       <FieldGroup label="Notes">

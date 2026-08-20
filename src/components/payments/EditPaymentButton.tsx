@@ -55,27 +55,29 @@ function EditPaymentForm({
         <FarmerCombobox farmers={farmers} name="farmerId" defaultValue={payment.farmer_id} required />
       </FieldGroup>
 
-      <FieldGroup label="Date">
-        <Input type="date" name="paymentDate" defaultValue={payment.payment_date} required />
-      </FieldGroup>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FieldGroup label="Date">
+          <Input type="date" name="paymentDate" defaultValue={payment.payment_date} required />
+        </FieldGroup>
+        <FieldGroup label="Amount">
+          <Input type="number" step="0.01" min="0.01" name="amount" defaultValue={payment.amount} required />
+        </FieldGroup>
+      </div>
 
-      <FieldGroup label="Amount">
-        <Input type="number" step="0.01" min="0.01" name="amount" defaultValue={payment.amount} required />
-      </FieldGroup>
-
-      <FieldGroup label="Payment Method">
-        <Select name="paymentMethod" defaultValue={payment.payment_method}>
-          {paymentMethods.map((m) => (
-            <option key={m.value} value={m.value}>
-              {m.label}
-            </option>
-          ))}
-        </Select>
-      </FieldGroup>
-
-      <FieldGroup label="Reference Number">
-        <Input name="referenceNumber" defaultValue={payment.reference_number ?? ""} placeholder="Optional" />
-      </FieldGroup>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <FieldGroup label="Payment Method">
+          <Select name="paymentMethod" defaultValue={payment.payment_method}>
+            {paymentMethods.map((m) => (
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
+            ))}
+          </Select>
+        </FieldGroup>
+        <FieldGroup label="Reference Number">
+          <Input name="referenceNumber" defaultValue={payment.reference_number ?? ""} placeholder="Optional" />
+        </FieldGroup>
+      </div>
 
       <FieldGroup label="Notes">
         <Input name="notes" defaultValue={payment.notes ?? ""} placeholder="Optional" />
@@ -96,9 +98,9 @@ export function EditPaymentButton({ payment, farmers }: { payment: EditablePayme
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)} className="text-sm text-accent hover:underline">
+      <Button type="button" variant="ghost" onClick={() => setIsOpen(true)} className="!px-2 !py-1 text-xs">
         Edit
-      </button>
+      </Button>
       {isOpen && (
         <Modal title="Edit Payment" onClose={() => setIsOpen(false)}>
           <EditPaymentForm payment={payment} farmers={farmers} onSaved={() => setIsOpen(false)} />

@@ -30,8 +30,13 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-      <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-slate-900/60" />
-      <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-800 sm:p-6">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-slate-900/60 animate-fade-in"
+      />
+      <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl animate-scale-in dark:border-slate-700 dark:bg-slate-800 sm:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-heading text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
           <button

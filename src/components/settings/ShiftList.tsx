@@ -32,7 +32,7 @@ function ShiftRow({ shift }: { shift: Shift }) {
   const dirty = startTime !== shift.start_time || endTime !== shift.end_time;
 
   return (
-    <li className="flex items-center justify-between gap-4 px-4 py-2.5">
+    <li className="flex items-center justify-between gap-4 px-4 py-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50">
       <span className="w-28 text-sm font-medium text-slate-900 dark:text-slate-100">{shift.name}</span>
       <div className="flex items-center gap-2">
         <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-32" />
@@ -65,7 +65,7 @@ export function ShiftList({ shifts }: { shifts: Shift[] }) {
 
   return (
     <div className="space-y-4">
-      <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
+      <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
         {shifts.map((shift) => (
           <ShiftRow key={shift.id} shift={shift} />
         ))}
