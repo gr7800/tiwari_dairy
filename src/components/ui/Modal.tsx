@@ -1,11 +1,23 @@
 "use client";
 
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 /**
  * Shared edit-dialog shell. Closes on Escape or backdrop click, matching the
  * MobileNav drawer's dismiss conventions so overlay behavior is consistent
  * across the app.
+ *
+ * Rendered via a portal straight into <body> rather than in place: this
+ * component is invoked deep inside page content (e.g. a table row), and
+ * page content is wrapped in an animated container (PageTransition). A
+ * CSS animation that ends with any `transform` value other than `none`
+ * (even a no-op like translateY(0)) makes that ancestor a new containing
+ * block for `position: fixed` descendants — so without the portal, this
+ * modal would be positioned relative to that (possibly tall, scrolled)
+ * wrapper instead of the real viewport, rendering off-screen on long
+ * pages. Escaping to <body> sidesteps that regardless of what animations
+ * or transforms any future ancestor adds.
  */
 export function Modal({
   title,
@@ -28,7 +40,7 @@ export function Modal({
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
       <button
         type="button"
@@ -52,6 +64,7 @@ export function Modal({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
